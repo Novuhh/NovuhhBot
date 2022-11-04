@@ -120,8 +120,7 @@ module.exports = {
                     }
                     case "size":
                     {
-                        lastMessage = size.replace(/\[prefix\]/g, '/').replace(/\[sizePill\]/g, sizePillCost).replace(/\[sizeSurgery\]/g, sizeSurgeryCost)
-                        em
+                        lastMessage = size.replace(/\[prefix\]/g, '/').replace(/\[sizePill\]/g, sizePillCost).replace(/\[sizeSurgery\]/g, sizeSurgeryCost);
                         return interaction.editReply({
                             content: lastMessage,
                             components: [row]
@@ -137,7 +136,7 @@ module.exports = {
                     }
                     case "cred":
                     {
-                        lastMessage = cred.replace(/\[prefix\]/g, '/').replace(/\[coinPerCred\]/g, coinPerCred)
+                        lastMessage = cred.replace(/\[prefix\]/g, '/').replace(/\[coinPerCred\]/g, coinPerCred);
                         return interaction.editReply({
                             content: lastMessage,
                             components: [row]
@@ -145,7 +144,7 @@ module.exports = {
                     }
                     case "waifu":
                     {
-                        lastMessage = waifu.replace(/\[prefix\]/g, '/').replace(/\[waifuMin\]/g, minWaifuValue).replace(/\[waifuMax\]/g, maxWaifuValue)
+                        lastMessage = waifu.replace(/\[prefix\]/g, '/').replace(/\[waifuMin\]/g, minWaifuValue).replace(/\[waifuMax\]/g, maxWaifuValue);
                         return interaction.editReply({
                             content: lastMessage,
                             components: [row]
@@ -153,7 +152,7 @@ module.exports = {
                     }
                     case "coin":
                     {
-                        lastMessage = coin.replace(/\[prefix\]/g, '/').replace(/\[coinPerCred\]/g, coinPerCred)
+                        lastMessage = coin.replace(/\[prefix\]/g, '/').replace(/\[coinPerCred\]/g, coinPerCred);
                         return interaction.editReply({
                             content: lastMessage,
                             components: [row]
@@ -169,7 +168,7 @@ module.exports = {
                     }
                     case "admin":
                     {
-                        lastMessage = admin.replace(/\[prefix\]/g, prefix)
+                        lastMessage = admin.replace(/\[prefix\]/g, '/')
                         return interaction.editReply({
                             content: lastMessage,
                             components: [row]

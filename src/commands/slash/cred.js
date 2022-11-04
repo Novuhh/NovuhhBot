@@ -4,7 +4,7 @@ const Data = require("../../util/user_data.js")
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('cred')
+		.setName('social_credit')
 		.setDescription('See how much social credit you or someone else has')
 		.addUserOption(option => option.setName('target').setDescription('The person whos cred you want to see')),
 	async execute(interaction) {
