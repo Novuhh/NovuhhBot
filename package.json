@@ -1,0 +1,29 @@
+{
+  "name": "novuhh",
+  "version": "2.1.0",
+  "description": "A discord bot that does stuff",
+  "main": "src\\index.js",
+  "dependencies": {
+    "@discordjs/builders": "^0.12.0",
+    "@discordjs/rest": "^0.3.0",
+    "@discordjs/voice": "^0.11.0",
+    "booru": "^2.5.4",
+    "discord-api-types": "^0.29.0",
+    "discord.js": "^13.6.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dc": "node ./src/setup/deploy-commands.js && exit 1",
+    "init": "node ./src/setup/initializer.js && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Novuhh/NovuhhBot.git"
+  },
+  "author": "Zachary Gage",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Novuhh/NovuhhBot/issues"
+  },
+  "homepage": "https://github.com/Novuhh/NovuhhBot#readme"
+}
