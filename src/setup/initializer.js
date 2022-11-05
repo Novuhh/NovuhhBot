@@ -4,7 +4,6 @@ const { Client } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const Helper = require('../util/helper_no_dependents.js');
-const { DeploySlashCommands } = require("../deploy-commands-module.js")
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -131,6 +130,7 @@ const main = async () => {
                             if(err){ console.log(`\n${err}\nAborting initialization.`); }
                             else{ 
                                 console.log("user_data.json written successfully\n");
+                                const { DeploySlashCommands } = require("../deploy-commands-module.js")
                                 DeploySlashCommands();
                             }
                         });

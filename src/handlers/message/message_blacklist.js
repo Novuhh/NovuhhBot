@@ -20,7 +20,7 @@ module.exports =
             {
                 if(guildBlacklist.GetBlacklistDelete()) { message.delete(); }
                 new Data.SocialCredit(message.guildId).ChangeSocialCreditOfUserByAmount(message.member, -credLostPerBlacklistPhrase * infractions, message);
-                message.channel.send(`\`${message.author.username}\` has said the blacklisted phrase of \`REDACTED\` \`${infractions}\` time(s) and lost \`${credLostPerBlacklistPhrase*infractions}\` social credit because of it.`);
+                message.channel.send({content: `${message.author} has said the blacklisted phrase of \`REDACTED\` \`${infractions}\` time(s) and lost \`${credLostPerBlacklistPhrase*infractions}\` social credit because of it.`, allowedMentions: { repliedUser: false }});
             }
         }
     }

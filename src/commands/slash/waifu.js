@@ -122,15 +122,15 @@ module.exports = {
         if(target != null)
             user = target;
 
+        const embed = new MessageEmbed().setColor('RANDOM');
+
         switch(subCommand)
         {
             // General
             case "info":
             {
                 // See who the user owns
-                const embed = new MessageEmbed()
-                    .setColor('LUMINOUS_VIVID_PINK')
-                    .setTitle(`Here is the waifu info for ${user.username}`)
+                embed.setColor('LUMINOUS_VIVID_PINK').setTitle(`Here is the waifu info for ${user.username}`)
                 const owned = guildWaifu.GetAllWaifuIDsOfOwnerID(user.id);
                 waifuList = '\n`Waifu` - `Value`';
                 for(const id of owned)
@@ -169,9 +169,7 @@ module.exports = {
             }
             case "market":
             {
-                const embed = new MessageEmbed()
-                        .setColor('DARK_GREEN')
-                        .setTitle('Waifu Market')
+                embed.setColor('DARK_GREEN').setTitle('Waifu Market')
                 const market = guildWaifu.GetWaifusOnMarket();
                 if(market.length != 0)
                 {
@@ -186,9 +184,7 @@ module.exports = {
             case "value":
             {
                 const value = interaction.options.getInteger('value');
-                const embed = new MessageEmbed()
-                    .setColor('DARK_PURPLE')
-                    .setTitle(`Attempting to change your waifu value to ${value}`)
+                embed.setColor('DARK_PURPLE').setTitle(`Attempting to change your waifu value to ${value}`)
                 if(guildWaifu.GetWaifuOwnerID(author.id) != null)
                 {
                     embed.setDescription(`Silly waifu, you are already claimed by <@${guildWaifu.GetWaifuOwnerID(author.id)}> valued at \`${guildWaifu.GetWaifuValue(author.id)}\` cred.`);
@@ -299,9 +295,7 @@ module.exports = {
             case "claim":
             {
                 const targetUser = interaction.options.getUser('target');
-                const embed = new MessageEmbed()
-                    .setColor('GOLD')
-                    .setTitle(`Attempting to claim ${targetUser.username}`);
+                embed.setColor('GOLD').setTitle(`Attempting to claim ${targetUser.username}`);
                 if(targetUser.id == author.id)
                 {
                     embed.setDescription(`Silly goose you can't claim yourself, try claiming someone else. See who is on the market with /waifu market`)
@@ -436,15 +430,16 @@ module.exports = {
                         const ownerCut = Math.ceil(waifuMade / 2);
                         Data.Coin.ChangeCoinOfUserByAmount(author.id, ownerCut)
                         Data.Coin.ChangeCoinOfUserByAmount(waifuIDs[i], waifuCut);
-                        output += `\n<@${waifuIDs[i]}> made \`${waifuMade}\` coin getting pimped out, giving \`${ownerCut}\` coin to their owner, and keeping \`${waifuCut}\` coin for themselves.`;
+                        output += `\n<@${waifuIDs[i]}> made \`${waifuMade}\` coin getting pimped out, giving \`${ownerCut}\` coin to you, and keeping \`${waifuCut}\` coin for themselves.`;
                     }
                 }
                 console.log(`${Date()} : ${author.username}[${author.id}] pimped out their waifus[${waifuIDs.length}]  making [${totalSum}] coin`);
-                embed.setDescription(output).setFooter({text: `Your new coin balance is: \`${Data.Coin.GetCoinOfUser(author.id)}\`.`});
+                embed.setDescription(output).setFooter({text: `Your new coin balance is: ${Data.Coin.GetCoinOfUser(author.id)}.`});
                 return interaction.reply({embeds: [embed]});
             }
             case "gag":
             {
+                const embed = new MessageEmbed();
                 const waifu = interaction.options.getUser('target');
                 if(guildWaifu.GetWaifuOwnerID(waifu.id) != author.id)
                 {
@@ -585,9 +580,7 @@ module.exports = {
             {
                 const waifu = interaction.options.getUser('target');
                 const waifuOwnerID = guildWaifu.GetWaifuOwnerID(waifu.id);
-                const embed = new MessageEmbed()
-                    .setColor('DARK_RED')
-                    .setTitle(`Attempting to disown ${waifu.username}`)
+                embed.setColor('DARK_RED').setTitle(`Attempting to disown ${waifu.username}`);
                 if(waifuOwnerID != author.id)
                 {
                     embed.setDescription(`You do not own ${waifu}`);
