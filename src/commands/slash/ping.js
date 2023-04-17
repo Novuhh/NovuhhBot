@@ -3,7 +3,8 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('ping')
-		.setDescription('Gets the response time of the bot'),
+		.setDescription('Gets the response time of the bot')
+		.setDMPermission(true),
 	async execute(interaction) {
 		interaction.reply({ content: 'Pong!', fetchReply: true })
 		.then((message) => {

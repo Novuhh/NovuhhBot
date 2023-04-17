@@ -6,3 +6,5 @@ feedback.json
 /src/data/backups/*
 # Can be regenerated with npm install
 node_modules
+# Test code not yet to be commited
+test_*

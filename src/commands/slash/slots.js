@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, time } = require('@discordjs/builders');
-const { MessageButton, MessageActionRow, MessageEmbed } = require('discord.js');
+const { ButtonBuilder, ActionRowBuilder, EmbedBuilder, ButtonStyle } = require('discord.js');
 const Data = require("../../util/user_data.js")
 const Helper = require("../../util/helper_functions.js");
 const NoDependents = require('../../util/helper_no_dependents.js');
@@ -12,10 +12,11 @@ module.exports = {
             option.setName('bet')
             .setDescription('The bet of coin for each slot machine pull')
             .setMinValue(1)
-            .setRequired(true)),
+            .setRequired(true))
+        .setDMPermission(true),
 	async execute(interaction) {
         const amount = interaction.options.getInteger('bet');
-        const embed = new MessageEmbed().setTitle(`Welcome to the Slot Machine`).setColor('BLURPLE');
+        const embed = new EmbedBuilder().setTitle(`Welcome to the Slot Machine`).setColor('Blurple');
 
         if(amount > Data.Coin.GetCoinOfUser(interaction.user.id))
         {
@@ -24,13 +25,13 @@ module.exports = {
         }
 
         // Set up buttons for responses
-        const hash = NoDependents.GenerateRandomHash(32);
-        const leverButton = new MessageButton()
+        const hash = NoDependents.GenerateUserHash(interaction.user.id);
+        const leverButton = new ButtonBuilder()
             .setCustomId(hash)
             .setLabel('Pull Lever')
-            .setStyle('PRIMARY')
+            .setStyle(ButtonStyle.Primary)
             .setDisabled(false);
-        const row = new MessageActionRow()
+        const row = new ActionRowBuilder()
             .addComponents(
                 leverButton
             );

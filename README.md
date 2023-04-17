@@ -10,7 +10,7 @@ Novuhh was started in January 2021 as covid project. Since then there have been 
 
 ## Features
 
-- Work a job, gamble your earnings, win big, gamble more, lose it all, curse out the dear leader, lose all your social credit, become property of someone.
+- Work a job, gamble your earnings, win big, gamble more, lose it all, curse out the dear leader, lose all your social credit, become property of the state.
 - Economy (Bot wide)
     - Every day you can work a job to earn coin.
     - Gamble at the casino with games such as blackjack, slots, higher or lower, and coinflip.
@@ -32,8 +32,13 @@ Novuhh was started in January 2021 as covid project. Since then there have been 
     - Size (Server specific) - How much you packin in your pants?
     - And much more!
 
-## Install Your Own
+## Make Your Own
 
-1. Install all dependencies and modules
-2. Run `npm run init` to initialize the bot. You will need your token.
-3. run `node .` to start the bot
+0. Have / install [Node.js](https://nodejs.org/) and [npm](https://www.npmjs.com/)
+1. Clone the repository
+2. Install modules with `npm install`
+3. Run `npm run init` to initialize the bot. 
+    - (Required) You will need your discord bot token.
+    - (Optional) You can add dev users and guilds which will grant special privileges those users and servers.
+    - (Optional) You can also intialize the bot's activity presence now. Can also do this later via commands.
+4. Run `node .` or `npm run start` to start the bot.

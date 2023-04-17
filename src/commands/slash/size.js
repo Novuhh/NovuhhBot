@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const Data = require("../../util/user_data.js")
 const { sizePillCost, sizeSurgeryCost, sizePillSuccessChance } = require('../../data/constants.json');
 
@@ -22,10 +22,10 @@ module.exports = {
                 .setName(`pill`)
                 .setDescription(`Are you going take testosterone or estogen?`)
                 .setRequired(true)
-                .addChoices([
-                    ['Testosterone','cock'],
-                    ['Estrogen','pussy']
-                ])
+                .addChoices(
+                    {name: "Testosterone", value: "cock"},
+                    {name: "Estrogen", value: "pussy"}
+                )
             )
         )
         .addSubcommand(subcommand => subcommand
@@ -34,8 +34,8 @@ module.exports = {
         ),
 	async execute(interaction) {
         const guildSize = new Data.Size(interaction.guildId);
-        const embed = new MessageEmbed();
-        embed.setColor('RANDOM');
+        const embed = new EmbedBuilder();
+        embed.setColor('Random');
 
         const subCommand = interaction.options.getSubcommand();
         switch(subCommand)

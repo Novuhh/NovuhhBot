@@ -1,12 +1,11 @@
 const fs = require('fs');
-const { Client, Collection, Intents } = require('discord.js');
+const { Client, Collection, GatewayIntentBits, SystemChannelFlagsBitField } = require('discord.js');
 const { token } = require('./data/config.json');
 const Data = require('./util/user_data.js')
 const Helper = require('./util/helper_functions.js');
 const NoDependents = require('./util/helper_no_dependents.js');
-const SlashCommands = require('./deploy-commands-module.js');
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MEMBERS] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
 // Slash commands
 client.commands = new Collection();
@@ -54,6 +53,14 @@ process.on('exit', () => {
     Data.VoteKick.ClearVoteKickData();
 	Data.SaveToJson();
 	console.log(`${Date()} : ${client.user.username} is shutting down`);
+});
+
+client.on("channelUpdate", async (oldChannel, newChannel) => {
+    //const generalChannelID = "822740976496934933";    //    Bot testing
+    const generalChannelID = "280829648601088011";    //    Supernova
+    const nameToKeep = "general"
+    if(!(oldChannel.id == generalChannelID && newChannel.id == generalChannelID)){ return; }
+    if(newChannel.name != nameToKeep) { newChannel.setName(nameToKeep); }
 });
 
 client.on('interactionCreate', async interaction => {
@@ -107,7 +114,7 @@ client.on("messageCreate", async message => {
                     break;
                 return;
             default:
-                return
+                return;
         }
 
         try{
@@ -125,7 +132,6 @@ client.on("voiceStateUpdate", (oldVoiceState, newVoiceState) => {
 
 client.on('guildCreate', guild => {
     Data.AddGuildToJson(guild.id);
-    SlashCommands.DeploySlashCommandsToGuild(guild.id, client);
 });
 
 client.on('guildDelete', guild => {
@@ -174,3 +180,4 @@ const runEveryFullDay = (callbackFn) => {
         setInterval(callbackFn, day);
     }, firstCall);
 };
+

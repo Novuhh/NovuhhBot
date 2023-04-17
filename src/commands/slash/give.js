@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const Data = require("../../util/user_data.js")
 
 module.exports = {
@@ -19,7 +19,7 @@ module.exports = {
 		const user = interaction.options.getUser('user');
         const amount = interaction.options.getInteger('amount');
 
-        const embed = new MessageEmbed().setColor('RANDOM');
+        const embed = new EmbedBuilder().setColor('Random');
 
         if(user.id == interaction.user.id)
         {

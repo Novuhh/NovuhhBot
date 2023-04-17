@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageButton, MessageActionRow, MessageEmbed } = require('discord.js');
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType } = require('discord.js');
 const Data = require("../../util/user_data.js")
 const NoDependents = require('../../util/helper_no_dependents.js');
 const { cards } = require('../../data/constants.json');
@@ -12,12 +12,13 @@ module.exports = {
             option.setName('amount')
             .setDescription('The amount of coin to you want to gamble')
             .setMinValue(1)
-            .setRequired(true)),
+            .setRequired(true))
+        .setDMPermission(true),
 	async execute(interaction) {
         const amount = interaction.options.getInteger('amount');
 
-        const embed = new MessageEmbed()
-            .setColor('DARK_BUT_NOT_BLACK')
+        const embed = new EmbedBuilder()
+            .setColor('DarkButNotBlack')
             .setTitle('Welcome to the Blackjack Table')
 
         if(amount > Data.Coin.GetCoinOfUser(interaction.user.id))
@@ -26,45 +27,40 @@ module.exports = {
             return interaction.reply({embeds: [embed]});
         }
 
-        // Set up game 
-        const hitHash = NoDependents.GenerateRandomHash(32);
-        const standHash = NoDependents.GenerateRandomHash(32);
-        const doubleHash = NoDependents.GenerateRandomHash(32);
-        const hitButton = new MessageButton()
+        // Set up game
+        const hitHash = NoDependents.GenerateUserHash(interaction.user.id,8);
+        const standHash = NoDependents.GenerateUserHash(interaction.user.id,8);
+        const doubleHash = NoDependents.GenerateUserHash(interaction.user.id,8);
+        const hitButton = new ButtonBuilder()
             .setCustomId(hitHash)
             .setLabel('Hit')
-            .setStyle('SUCCESS')
+            .setStyle(ButtonStyle.Success)
             .setDisabled(false);
-        const standButton = new MessageButton()
+        const standButton = new ButtonBuilder()
             .setCustomId(standHash)
             .setLabel('Stand')
-            .setStyle('DANGER')
+            .setStyle(ButtonStyle.Danger)
             .setDisabled(false);
-        const doubleButton = new MessageButton()
+        const doubleButton = new ButtonBuilder()
             .setCustomId(doubleHash)
             .setLabel('Double')
-            .setStyle('PRIMARY')
-            .setDisabled(false);
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(Data.Coin.GetCoinOfUser(interaction.user.id) < 2 * amount);
 
-        if(Data.Coin.GetCoinOfUser(interaction.user.id) < 2 * amount)
-        {
-            doubleButton.setDisabled(true);
-        }
-
-        const gameRow = new MessageActionRow()
+        const gameRow = new ActionRowBuilder()
             .addComponents(
                 hitButton,
                 standButton,
                 doubleButton
             );
 
-        const playAgainHash = NoDependents.GenerateRandomHash(32);
-        const playAgainButton = new MessageButton()
+        const playAgainHash = NoDependents.GenerateUserHash(interaction.user, 8);
+        const playAgainButton = new ButtonBuilder()
             .setCustomId(playAgainHash)
             .setLabel('Play Again')
-            .setStyle('SUCCESS')
+            .setStyle(ButtonStyle.Success)
             .setDisabled(false);
-        const playAgainRow = new MessageActionRow()
+        const playAgainRow = new ActionRowBuilder()
             .addComponents(
                 playAgainButton
             );
@@ -81,9 +77,10 @@ module.exports = {
         // Functions to help shorten the calls and make it easier
         function ShowGame()
         {
-            embed.setFields([]);
-            embed.addField(`Dealer's hand:`, dealerHand.join(''));
-            embed.addField(`Player's hand:`, playerHand.join(''));
+            embed.setFields([]).addFields(
+                {name: 'Dealer\'s hand', value: dealerHand.join('')},
+                {name: 'Player\'s hand', value: playerHand.join('')}
+            )
         }
 
         function NewCard()
@@ -170,24 +167,24 @@ module.exports = {
             if(dealerTotal > 21)
             {
                 PlayerWon(betAmount);
-                embed.addField('Result:', `The dealer has bust. You won \`${betAmount}\` coin.`);
+                embed.addFields({name: 'Result:', value: `The dealer has bust. You won \`${betAmount}\` coin.`});
             }
             // Player loses
             else if (dealerTotal > playerTotal)
             {
                 PlayerLost(secondVar);
-                embed.addField('Result:', `The dealer has beat your hand. You lost \`${betAmount + secondVar}\` coin.`);
+                embed.addFields({name: 'Result:', value: `The dealer has beat your hand. You lost \`${betAmount + secondVar}\` coin.`});
             }
             // Push
             else if (dealerTotal == playerTotal)
             {
-                embed.addField('Result:', `Push. You didn't win or lose anything.`);
+                embed.addFields({name: 'Result:', value: `Push. You didn't win or lose anything.`});
             }
             // Beat dealer's hand
             else
             {
                 PlayerWon(betAmount);
-                embed.addField('Result:', `You beat the dealer's hand. You won \`${betAmount}\` coin.`)
+                embed.addFields({name: 'Result:', value:`You beat the dealer's hand. You won \`${betAmount}\` coin.`});
             }
             playAgainButton.setDisabled(Data.Coin.GetCoinOfUser(interaction.user.id) < amount);
             interaction.editReply({
@@ -198,26 +195,27 @@ module.exports = {
 
         function UpdateFooter()
         {
-            embed.setFooter({text: `Bet: ${amount}\tCoin Won/Lost: ${coinWon}\tCoin left: ${Data.Coin.GetCoinOfUser(interaction.user.id)}`})
+            embed.setFooter({text: `Bet: ${amount}\tCoin Won/Lost: ${coinWon}\tCoin left: ${Data.Coin.GetCoinOfUser(interaction.user.id)}`}); 
         }
 
         // Start the game
         ResetGame();
         ShowGame();
         UpdateFooter();
+        let interactionReply;
         if(playerTotal == 21)
         {
             const handWon = Math.floor(1.5 * amount);
             PlayerWon(handWon);
-            embed.addField('Result:', `Player Blackjack! You won \`${handWon}\` coin in this hand.`)
-            await interaction.reply({ 
+            embed.addFields({name: 'Result:', value: `Player Blackjack! You won \`${handWon}\` coin in this hand.`});
+            interactionReply = await interaction.reply({ 
                 embeds: [embed], 
                 components: [playAgainRow]
             });
         }
         else
         {
-            await interaction.reply({ 
+            interactionReply = await interaction.reply({ 
                 embeds: [embed], 
                 components: [gameRow] 
             });
@@ -229,39 +227,44 @@ module.exports = {
         
         const collector = interaction.channel.createMessageComponentCollector({
             filter,
-            time: 30 * 1000
+            time: 30 * 1000,
+            ComponentType: ComponentType.Button
         });
         setTimeout(function(){ collector.stop() }, 10 * 60 * 1000);
 
-        collector.on('end', (collection) => {
+        collector.on('end', () => {
+            let row;
             embed.setDescription(`Thank you for playing blackjack.`);
             if(paidOut == false)
             {
                 Data.Coin.ChangeCoinOfUserByAmount(interaction.user.id, Math.floor(amount / 2.0));
                 coinWon += Math.floor(amount / 2.0);
                 UpdateFooter();
-                embed.setDescription(`${embed.description}\nYou have started a new hand but not finished it. You have been given back half of your bet.`)
+                embed.setDescription(`${embed.data.description}\nYou have started a new hand but not finished it. You have been given back half of your bet.`);
+                row = gameRow;
             }
+            else { row = playAgainRow; }
             if(coinWon > 0)
             {
-                embed.setDescription(`${embed.description}\nYou won: \`${coinWon}\` coin in this blackjack gambling session.`);
+                embed.setDescription(`${embed.data.description}\nYou won: \`${coinWon}\` coin in this blackjack gambling session.`);
             }
             else if(coinWon == 0)
             {
-                embed.setDescription(`${embed.description}\nYou broke even in this blackjack gambling session.`)
+                embed.setDescription(`${embed.data.description}\nYou broke even in this blackjack gambling session.`)
             }
             else
             {
-                embed.setDescription(`${embed.description}\nYou lost: \`${Math.abs(coinWon)}\` coin in this blackjack gambling session.`);
+                embed.setDescription(`${embed.data.description}\nYou lost: \`${Math.abs(coinWon)}\` coin in this blackjack gambling session.`);
             }
-            interaction.editReply({ embeds: [embed] }).catch(console.error);
-            NoDependents.DisableAllInteractionComponents(interaction);
+
+            for(let button of row.components){ button.setDisabled(true); }
+            interaction.editReply({ embeds: [embed], components: [row] }).catch(console.error);
         });
 
         collector.on('collect', buttonInt => {
             if(buttonInt.user.id !== interaction.user.id)
             {
-                return buttonInt.reply({ content: `These buttons aren't for you.`, ephemeral: true })
+                return buttonInt.reply({ content: `These buttons aren't for you.`, ephemeral: true });
             }
             
             buttonInt.deferUpdate();
@@ -282,7 +285,7 @@ module.exports = {
                         {
                             PlayerLost();
                             playAgainButton.setDisabled(Data.Coin.GetCoinOfUser(interaction.user.id) < amount);
-                            embed.addField('Result:', `You bust and lost this hand. You lost \`${amount}\` coin.`);
+                            embed.addFields({name: 'Result:', value: `You bust and lost this hand. You lost \`${amount}\` coin.`});
                             interaction.editReply({
                                 embeds: [embed], 
                                 components: [playAgainRow] 
@@ -336,7 +339,7 @@ module.exports = {
                             PlayerLost(amount);
                             ShowGame();
                             playAgainButton.setDisabled(Data.Coin.GetCoinOfUser(interaction.user.id) < amount);
-                            embed.addField('Result:', `You have bust and lost the hand. You lost \`${2 * amount}\` coin.`)
+                            embed.addField({name: 'Result:', value: `You have bust and lost the hand. You lost \`${2 * amount}\` coin.`});
                             return interaction.editReply({
                                 embeds: [embed],
                                 components: [playAgainRow]
@@ -363,7 +366,7 @@ module.exports = {
                     {
                         const handWon = Math.floor(1.5 * amount);
                         PlayerWon(handWon);
-                        embed.addField('Result:', `Player Blackjack! You won \`${handWon}\` coin in this hand.`);
+                        embed.addFields({name: 'Result:', value: `Player Blackjack! You won \`${handWon}\` coin in this hand.`});
                         interaction.editReply({components: [playAgainRow]}).catch(console.error);
                     }
                     else

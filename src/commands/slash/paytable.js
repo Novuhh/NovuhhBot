@@ -1,11 +1,12 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const NoDependents = require("../../util/helper_no_dependents.js");
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('slots_paytable')
-		.setDescription('Gets the paytable of the slot machine.'),
+		.setDescription('Gets the paytable of the slot machine.')
+        .setDMPermission(true),
 	async execute(interaction) {
         const cherry = NoDependents.SlotReels.GetCherry(), bar = NoDependents.SlotReels.GetBar(), 
               bar2 = NoDependents.SlotReels.GetBar2(),     bar3 = NoDependents.SlotReels.GetBar3(), 
@@ -21,8 +22,8 @@ module.exports = {
         output += `\nAny ${cherry} - 1`;
         output += `\n${jackpot}${jackpot} - Multiply winnings by 16`;
         output += `\n${jackpot} - Multiply winnings by 4`;
-        const embed = new MessageEmbed()
-            .setColor('GOLD')
+        const embed = new EmbedBuilder()
+            .setColor('Gold')
             .setTitle(`The paytable for a bet of 1 coin is as follows:`)
             .setDescription(output);
         return interaction.reply({embeds: [embed]});

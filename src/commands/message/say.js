@@ -10,6 +10,6 @@ module.exports = {
         {
             return message.channel.send(messageContent.splice(1).join(' '));
         }
-        return message.channel.send("Gotta put what you want me to say afterwards retard.");
+        return message.channel.send("Gotta put what you want me to say.");
 	},
 };

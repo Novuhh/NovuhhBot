@@ -1,5 +1,5 @@
-const { SlashCommandBuilder, time } = require('@discordjs/builders');
-const { MessageButton, MessageActionRow } = require('discord.js');
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
 const Data = require("../../util/user_data.js")
 const NoDependents = require("../../util/helper_no_dependents.js");
 
@@ -11,7 +11,8 @@ module.exports = {
             option.setName('amount')
             .setDescription('The amount of coin to you want to gamble')
             .setMinValue(1)
-            .setRequired(true)),
+            .setRequired(true))
+        .setDMPermission(true),
 	async execute(interaction) {
         const amount = interaction.options.getInteger('amount');
 
@@ -19,39 +20,40 @@ module.exports = {
             return interaction.reply(`You can't gamble more coin than you have. You only have \`${Data.Coin.GetCoinOfUser(interaction.user.id)}\` coin.`);
 
         // Set up buttons for responses
-        const higherhash = NoDependents.GenerateRandomHash(32);
-        const equalHash = NoDependents.GenerateRandomHash(32);
-        const lowerHash = NoDependents.GenerateRandomHash(32);
-        const higherButton = new MessageButton()
+        const userId = interaction.user.id;
+        const higherhash = NoDependents.GenerateUserHash(userId);
+        const equalHash = NoDependents.GenerateUserHash(userId);
+        const lowerHash = NoDependents.GenerateUserHash(userId);
+        const higherButton = new ButtonBuilder()
             .setCustomId(higherhash)
             .setLabel('Higher')
-            .setStyle('PRIMARY')
+            .setStyle(ButtonStyle.Primary)
             .setDisabled(false);
-        const equalButton = new MessageButton()
+        const equalButton = new ButtonBuilder()
             .setCustomId(equalHash)
             .setLabel('Equal To')
-            .setStyle('PRIMARY')
+            .setStyle(ButtonStyle.Primary)
             .setDisabled(false);
-        const lowerButton = new MessageButton()
+        const lowerButton = new ButtonBuilder()
             .setCustomId(lowerHash)
             .setLabel('Lower')
-            .setStyle('PRIMARY')
+            .setStyle(ButtonStyle.Primary)
             .setDisabled(false);
 
-        const row = new MessageActionRow()
+        const row = new ActionRowBuilder()
             .addComponents(
                 higherButton,
                 equalButton,
                 lowerButton
             );
 
-        const playAgainHash = NoDependents.GenerateRandomHash(32);
-        const playAgainButton = new MessageButton()
+        const playAgainHash = NoDependents.GenerateUserHash(interaction.user.id);
+        const playAgainButton = new ButtonBuilder()
             .setCustomId(playAgainHash)
             .setLabel('Play Again')
-            .setStyle('SUCCESS')
+            .setStyle(ButtonStyle.Primary)
             .setDisabled(false);
-        const playAgainRow = new MessageActionRow()
+        const playAgainRow = new ActionRowBuilder()
             .addComponents(
                 playAgainButton
             );
@@ -127,7 +129,7 @@ module.exports = {
             }
         });
 
-        collector.on('end', async (collection) => {
+        collector.on('end', async () => {
             let output =  `I guess you\'re done playing higher or lower for now.\n`;
             if(coinWon > 0)
             {

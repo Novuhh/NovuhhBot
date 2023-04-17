@@ -1,3 +1,5 @@
+const { PermissionFlagsBits } = require('discord.js');
+
 module.exports.IsDevUser = function(userID)
 {
     const { GetDevUsers } = require('../util/user_data.js');
@@ -13,7 +15,7 @@ module.exports.IsDevGuild = function(guildID)
 module.exports.IsAdmin = function(member)
 {
     try {
-        return member.permissions.serialize().ADMINISTRATOR;
+        return member.permissions.has(PermissionFlagsBits.Administrator);
     } catch (e) {
         console.log(`${Date()} : A message check for IsAdmin failed.\nError message: ${e}`);
     }
@@ -70,22 +72,23 @@ module.exports.CheckIfValidStreamingUrl = function(url)
 module.exports.GenerateRandomHash = function(size = 16)
 {
     const characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let hash = '';
+    let hash = [];
     for(let i = 0; i < size; i++)
     {
-        hash += characters[Math.floor(Math.random() * characters.length)];
+        hash.push(characters[Math.floor(Math.random() * characters.length)]);
     }
-    return hash;
+    return hash.join('');
 }
 
 module.exports.GenerateUserHash = function(userID = "", size = 8)
 {
     const characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let hash = [userID, '_']
     for(let i = 0; i < size; i++)
     {
-        userID += characters[Math.floor(Math.random() * characters.length)];
+        hash.push(characters[Math.floor(Math.random() * characters.length)]);
     }
-    return userID;
+    return hash.join('');
 }
 
 const runEveryFullMinute = (callbackFn) => {
@@ -98,8 +101,10 @@ const runEveryFullMinute = (callbackFn) => {
     }, firstCall);
 };
 
+// Depreciated
 module.exports.DisableAllInteractionComponents = function(interaction)
 {
+    return "Called depreciated function: DisableAllInteractionComponents"
     interaction.fetchReply().then(reply => {
         for(let row of reply.components)
         {
@@ -110,4 +115,35 @@ module.exports.DisableAllInteractionComponents = function(interaction)
         }
         interaction.editReply({ components: reply.components });
     });
+}
+
+// From discord js Util. Deapritated in v14
+module.exports.splitMessage = function(text, { maxLength = 2_000, char = '\n', prepend = '', append = '' } = {}) 
+{
+    if (typeof text !== 'string') throw new error(`Expected a string, got ${text} instead.`);
+    if (text.length <= maxLength) return [text];
+    let splitText = [text];
+    if (Array.isArray(char)) {
+      while (char.length > 0 && splitText.some(elem => elem.length > maxLength)) {
+        const currentChar = char.shift();
+        if (currentChar instanceof RegExp) {
+          splitText = splitText.flatMap(chunk => chunk.match(currentChar));
+        } else {
+          splitText = splitText.flatMap(chunk => chunk.split(currentChar));
+        }
+      }
+    } else {
+      splitText = text.split(char);
+    }
+    if (splitText.some(elem => elem.length > maxLength)) throw new RangeError('SPLIT_MAX_LEN');
+    const messages = [];
+    let msg = '';
+    for (const chunk of splitText) {
+      if (msg && (msg + char + chunk + append).length > maxLength) {
+        messages.push(msg + append);
+        msg = prepend;
+      }
+      msg += (msg && msg !== prepend ? char : '') + chunk;
+    }
+    return messages.concat(msg).filter(m => m);
 }

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const NoDependents = require("../../util/helper_no_dependents.js");
 
 module.exports = {
@@ -11,17 +11,15 @@ module.exports = {
             .setDescription(`How long are you going to time yourself out in minutes. Max time: 1440`)
             .setMinValue(1)
             .setMaxValue(1440)
-            ),
+            )
+        .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages),
 	async execute(interaction) {
         let time = interaction.options.getNumber('time')
-        if(time == null)
-        {
-            time = 60;
-        }
+        if(time == null){ time = 60; }
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setTitle(`${interaction.user.username} Is Timing Themself Out`)
-            .setColor('NAVY')
+            .setColor('NotQuiteBlack')
 
         if(interaction.member.moderatable)
         {

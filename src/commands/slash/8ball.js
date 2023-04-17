@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -8,7 +8,8 @@ module.exports = {
 		.addStringOption(option => 
             option.setName('question')
             .setDescription('The question to ask the magic 8 ball')
-            .setRequired(true)),
+            .setRequired(true))
+        .setDMPermission(true),
 	async execute(interaction) {
 		let question = interaction.options.getString('question');
         if(question.slice(-1) != '?')
@@ -38,11 +39,13 @@ module.exports = {
             'Fuck no and fuck you.'
         ];
 
-        const embed = new MessageEmbed()
-            .setColor('GREY')
+        const embed = new EmbedBuilder()
+            .setColor('Random')
             .setTitle('The All Knowing 8 Ball Has Been Summoned')
-            .addField('Your Question:', question)
-            .addField('My Answer:', responses[Math.floor(Math.random() * responses.length)])
+            .addFields(
+                {name: 'Your Question:', value: question},
+                {name: 'My Answer:', value: responses[Math.floor(Math.random() * responses.length)]}
+            )
         return interaction.reply({embeds: [embed]});
 	},
 };

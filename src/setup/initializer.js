@@ -94,6 +94,7 @@ const main = async () => {
             rl.close();
             return;
         }
+        configData.clientId = client.id;
         client.destroy();
         console.log("Token validated")
         configData.activity = activity;

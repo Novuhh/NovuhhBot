@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { defaultSocialCred, minSocialCredit, defaultWaifuPrice, leaderboardSize, defaultPrefix, coinleadboardsize } = require('../data/constants.json');
 
 const rawData = fs.readFileSync('./src/data/user_data.json');//'../data/user_data.json');
@@ -11,7 +11,6 @@ const config = JSON.parse(rawConfig)
 // Save the data in the storedData object to the json file
 module.exports.SaveToJson = function()
 {
-
     const stringified = JSON.stringify(storedData, null, 2);   // turns data back into json format
     fs.writeFileSync('./src/data/user_data.json', stringified); //default: 'utf8'
     console.log(`${Date()} : UserData.json has been updated`);
@@ -21,14 +20,16 @@ module.exports.BackupJson = function(comment = "")
 {
     const stringified = JSON.stringify(storedData, null, 2);   // turns data back into json format
     const date = new Date();
-    if(comment == "")
-    {
-        fs.writeFileSync(`./src/data/backups/user_data_${date.getMonth() + 1}_${date.getDate()}_${date.getFullYear()}.json`, stringified); //default: 'utf8'
-    }
-    else
-    {
-        fs.writeFileSync(`./src/data/backups/user_data_${date.getMonth() + 1}_${date.getDate()}_${date.getFullYear()}_${comment}.json`, stringified); //default: 'utf8'
-    }
+    try{
+        if(comment == "")
+        {
+            fs.writeFile(`./src/data/backups/user_data_${date.getMonth() + 1}_${date.getDate()}_${date.getFullYear()}.json`, stringified); //default: 'utf8'
+        }
+        else
+        {
+            fs.writeFile(`./src/data/backups/user_data_${date.getMonth() + 1}_${date.getDate()}_${date.getFullYear()}_${comment}.json`, stringified); //default: 'utf8'
+        }
+    } catch { console.error }
     console.log(`${date} : UserData.json has been backed up`);
 }
 
@@ -152,18 +153,6 @@ function GetUsernameOfUserID(userID)
         return "Cannot get username";
     
     return storedData.users[userID].username;
-}
-
-module.exports.UpdateUsernameOfUserID = function(userID, userName)
-{
-    // User not in json
-    if(!CheckIfUserIsInJSON(userID)){ return; }
-    // No username
-    if(storedData.users[userID].username == null || storedData.users[userID].username != userName)
-    {
-        storedData.users[userID].username = userName;
-        console.log(`${Date()} : [${userID}] updated their username`);
-    }
 }
 
 class GuildData
@@ -409,11 +398,15 @@ class SocialCredit extends GuildData
             newWaifuValue = Math.min(newWaifuValue, defaultWaifuPrice)
             storedData.guilds[this.guildID].users[userID].waifuValue = newWaifuValue;
 
-            const embed = new MessageEmbed()
-                .setTitle('Terrible Social Credit Alert')
-                .setColor('DARK_RED')
-                .setDescription(`${guildMember} has been put on the waifu market with a value of \`${newWaifuValue}\`. Maybe you should stop being a leech to society and be useful. You can not change your waifu value or remove yourself from the market until you get out of terrible social credit standing.`)
-            message.channel.send({embeds: [embed]});
+            try {
+                const embed = new EmbedBuilder()
+                    .setTitle('Terrible Social Credit Alert')
+                    .setColor('DarkRed')
+                    .setDescription(`${guildMember} has been put on the waifu market with a value of \`${newWaifuValue}\`. Maybe you should stop being a leech to society and be useful. You can not change your waifu value or remove yourself from the market until you get out of terrible social credit standing.`)
+                message.channel.send({embeds: [embed]});
+            } catch(e) {
+                console.error(e)
+            }
         }
 
         // Credit debt

@@ -1,4 +1,4 @@
-const { MessageButton, MessageActionRow, MessageEmbed } = require('discord.js');
+const { ButtonBuilder, ActionRowBuilder, EmbedBuilder, ButtonStyle } = require('discord.js');
 const Discord = require('discord.js');
 const Data = require("./user_data.js");
 const NoDependents = require('./helper_no_dependents.js');
@@ -78,25 +78,25 @@ module.exports.InteractionGetConfimationFromUser = function(
     denyMessage = `<@${confirmNeededID}> declined.`)
 {
     return new Promise(resolve => {
-        const acceptHash = NoDependents.GenerateRandomHash(32);
-        const denyHash = NoDependents.GenerateRandomHash(32);
-        const acceptButton = new MessageButton()
+        const acceptHash = NoDependents.GenerateUserHash(interaction.user.id);
+        const denyHash = NoDependents.GenerateUserHash(interaction.user.id);
+        const acceptButton = new ButtonBuilder()
             .setCustomId(acceptHash)
             .setLabel('Accept')
-            .setStyle('SUCCESS')
+            .setStyle(ButtonStyle.Success)
             .setDisabled(false);
-        const denyButton = new MessageButton()
+        const denyButton = new ButtonBuilder()
             .setCustomId(denyHash)
             .setLabel('Decline')
-            .setStyle('DANGER')
+            .setStyle(ButtonStyle.Danger)
             .setDisabled(false);
-        const row = new MessageActionRow()
+        const row = new ActionRowBuilder()
             .addComponents(
                 acceptButton,
                 denyButton
             );
-        const embed = new MessageEmbed()
-            .setColor('BLUE')
+        const embed = new EmbedBuilder()
+            .setColor('Blue')
             .setTitle(`Confirmation Required`)
             .setDescription(initMessage);
 
@@ -119,9 +119,10 @@ module.exports.InteractionGetConfimationFromUser = function(
             {
                 buttonInt.reply({ content: `These buttons aren't for you.`, ephemeral: true });
             }
+            buttonInt.deferUpdate();
             if(buttonInt.customId == acceptHash)
             {
-                embed.setDescription(acceptMessage).setColor('GREEN');
+                embed.setDescription(acceptMessage).setColor('Green');
                 interaction.editReply({ 
                     embeds: [embed],
                     components: [] 
@@ -130,7 +131,7 @@ module.exports.InteractionGetConfimationFromUser = function(
             }
             else
             {
-                embed.setDescription(denyMessage).setColor('RED');
+                embed.setDescription(denyMessage).setColor('Red');
                 interaction.editReply({ 
                     embeds: [embed], 
                     components: [] 
@@ -142,7 +143,7 @@ module.exports.InteractionGetConfimationFromUser = function(
         collector.on('end', async (collection) => {
             if(collection.size == 0)
             {
-                embed.setDescription(noResponseMessage).setColor('NOT_QUITE_BLACK');
+                embed.setDescription(noResponseMessage).setColor('NotQuiteBlack');
                 interaction.editReply({ 
                     embeds: [embed], 
                     components: [] 

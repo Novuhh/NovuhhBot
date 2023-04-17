@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageButton, MessageActionRow, MessageEmbed } = require('discord.js');
+const { ButtonBuilder, ActionRowBuilder, EmbedBuilder, ButtonStyle } = require('discord.js');
 const Data = require("../../util/user_data.js")
 const Helper = require("../../util/helper_functions.js");
 const NoDependents = require("../../util/helper_no_dependents.js");
@@ -122,7 +122,7 @@ module.exports = {
         if(target != null)
             user = target;
 
-        const embed = new MessageEmbed().setColor('RANDOM');
+        const embed = new EmbedBuilder().setColor('Random');
 
         switch(subCommand)
         {
@@ -130,7 +130,7 @@ module.exports = {
             case "info":
             {
                 // See who the user owns
-                embed.setColor('LUMINOUS_VIVID_PINK').setTitle(`Here is the waifu info for ${user.username}`)
+                embed.setColor('LuminousVividPink').setTitle(`Here is the waifu info for ${user.username}`)
                 const owned = guildWaifu.GetAllWaifuIDsOfOwnerID(user.id);
                 waifuList = '\n`Waifu` - `Value`';
                 for(const id of owned)
@@ -169,7 +169,7 @@ module.exports = {
             }
             case "market":
             {
-                embed.setColor('DARK_GREEN').setTitle('Waifu Market')
+                embed.setColor('DarkGreen').setTitle('Waifu Market')
                 const market = guildWaifu.GetWaifusOnMarket();
                 if(market.length != 0)
                 {
@@ -184,7 +184,7 @@ module.exports = {
             case "value":
             {
                 const value = interaction.options.getInteger('value');
-                embed.setColor('DARK_PURPLE').setTitle(`Attempting to change your waifu value to ${value}`)
+                embed.setColor('DarkPurple').setTitle(`Attempting to change your waifu value to ${value}`)
                 if(guildWaifu.GetWaifuOwnerID(author.id) != null)
                 {
                     embed.setDescription(`Silly waifu, you are already claimed by <@${guildWaifu.GetWaifuOwnerID(author.id)}> valued at \`${guildWaifu.GetWaifuValue(author.id)}\` cred.`);
@@ -295,7 +295,7 @@ module.exports = {
             case "claim":
             {
                 const targetUser = interaction.options.getUser('target');
-                embed.setColor('GOLD').setTitle(`Attempting to claim ${targetUser.username}`);
+                embed.setColor('Gold').setTitle(`Attempting to claim ${targetUser.username}`);
                 if(targetUser.id == author.id)
                 {
                     embed.setDescription(`Silly goose you can't claim yourself, try claiming someone else. See who is on the market with /waifu market`)
@@ -439,7 +439,7 @@ module.exports = {
             }
             case "gag":
             {
-                const embed = new MessageEmbed();
+                const embed = new EmbedBuilder();
                 const waifu = interaction.options.getUser('target');
                 if(guildWaifu.GetWaifuOwnerID(waifu.id) != author.id)
                 {
@@ -468,13 +468,13 @@ module.exports = {
                 interaction.deferReply();
                 interaction.deleteReply();
 
-                const unGagHash = NoDependents.GenerateRandomHash(32);
-                const unGagButton = new MessageButton()
+                const unGagHash = NoDependents.GenerateUserHash(interaction.user.id);
+                const unGagButton = new ButtonBuilder()
                     .setCustomId(unGagHash)
                     .setLabel('Ungag Early')
-                    .setStyle('PRIMARY')
+                    .setStyle(ButtonStyle.Primary)
                     .setDisabled(false);
-                const row = new MessageActionRow()
+                const row = new ActionRowBuilder()
                     .addComponents(
                         unGagButton
                     );
@@ -580,7 +580,7 @@ module.exports = {
             {
                 const waifu = interaction.options.getUser('target');
                 const waifuOwnerID = guildWaifu.GetWaifuOwnerID(waifu.id);
-                embed.setColor('DARK_RED').setTitle(`Attempting to disown ${waifu.username}`);
+                embed.setColor('DarkRed').setTitle(`Attempting to disown ${waifu.username}`);
                 if(waifuOwnerID != author.id)
                 {
                     embed.setDescription(`You do not own ${waifu}`);

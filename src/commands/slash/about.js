@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { version } = require('../../../package.json');
 
 module.exports = {
@@ -30,14 +30,16 @@ module.exports = {
         // Seconds
         uptime += `\`${Math.floor(time / 1000)}\` Seconds`;
         time -= Math.floor(time / 1000) * 1000;
-        const embed = new MessageEmbed()
-            .setColor('BLUE')
+        const embed = new EmbedBuilder()
+            .setColor('Blue')
             .setTitle("Hi I'm Novuhh")
             .setThumbnail('https://i.imgur.com/LCYUHD2.png')
             .setDescription('For a full list of the commands I follow, use /help')
-            .addField('What do you do?','I am an economy and social credit bot with some other features. Work a job, gamble your paycheck, then curse out the dear leader and lose 1000 social credit.')
-            .addField('Why do you exist?', 'Why do any of us exist? I don\'t know why exactly but one day my creator <@262791799444078594> made me so here I am.')
-            .addField('Time Since Last Crash', uptime)
+            .addFields([
+                {name: "What do you do?", value: "I am an economy and social credit bot with some other features. Work a job, gamble your paycheck, then curse out the dear leader and lose 1000 social credit."},
+                {name: "Why do you exist?", value: "Why do any of us exist? I don\'t know why exactly but one day my creator <@262791799444078594> made me so here I am."},
+                {name: "'Time Since Last Crash", value: uptime}
+            ])
             .setFooter({text: `Currently running version: ${version}`});
 		interaction.reply({embeds: [embed]})
 	},

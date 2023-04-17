@@ -1,7 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const Data = require("../../util/user_data.js")
-const NoDependents = require('../../util/helper_no_dependents.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -17,12 +16,12 @@ module.exports = {
             .setDescription('The amount of social credit to change by')
             .setRequired(true)
         )
-		.setDefaultPermission(false),
+		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 	async execute(interaction) {        
         const user = interaction.options.getUser('user');
         const amount = interaction.options.getInteger('amount');
 
-        if(user.id == interaction.user.id && !(interaction.guild.ownerId == interaction.user.id || NoDependents.IsNova(interaction.user.id)))
+        if(user.id == interaction.user.id && !(interaction.guild.ownerId == interaction.user.id))
         {
             return interaction.reply({content: `You can't modify your own or any other admin's social credit score. (Unless you're the server owner)`, ephemeral: true});
         }
@@ -31,9 +30,9 @@ module.exports = {
         const member = interaction.guild.members.cache.get(user.id);
         guildSocialCred.ChangeSocialCreditOfUserByAmount(member, amount, interaction);
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setTitle('Social Credit Change')
-            .setColor('PURPLE')
+            .setColor('Purple')
             .setDescription(`${interaction.user} has modified the social cedit of ${user} by \`${amount}\` and is now \`${guildSocialCred.GetSocialCreditOfUser(user.id)}\`.`)
         return interaction.reply({embeds: [embed]});
 	},

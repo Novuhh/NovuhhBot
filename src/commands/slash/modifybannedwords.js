@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { PermissionFlagsBits } = require('discord.js');
 const Data = require("../../util/user_data.js")
 const { bannedPhraseCharLimit } = require('../../data/constants.json');
 
@@ -13,10 +14,10 @@ module.exports = {
                 .setName('add_or_remove')
                 .setDescription('Add or Remove the banned phrase')
                 .setRequired(true)
-                .addChoices([
-                    ['add', 'add'],
-                    ['remove', 'remove']
-                ])
+                .addChoices(
+                    {name: "add", value:"add"},
+                    {name: "remove", value: "remove"}
+                )
             )
             .addStringOption(option => option
                 .setName('phrase')
@@ -33,8 +34,7 @@ module.exports = {
                 .setRequired(true)
             )
         )
-        
-		.setDefaultPermission(false),
+		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 	async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
         const guildBlacklist = new Data.Blacklist(interaction.guild.id);

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const Data = require("../../util/user_data.js")
 const { credLostPerBlacklistPhrase } = require('../../data/constants.json');
 
@@ -10,27 +10,27 @@ module.exports = {
 	async execute(interaction) {
         const guildBlacklist = new Data.Blacklist(interaction.guildId)
 
-        const embed = new MessageEmbed()
-            .setColor('RANDOM')
+        const embed = new EmbedBuilder()
+            .setColor('Random')
             .setTitle(`${interaction.guild.name}'s Banned Phrases`)
             .setDescription(`Your social credit will be lowered by \`${credLostPerBlacklistPhrase}\` for each banned phrase you say.`)
 
         if(guildBlacklist.GetBlacklistDelete())
         {
-            embed.addField('Delete Orginal Message', "Yes");
+            embed.addFields({name: 'Delete Orginal Message', value: "Yes"});
         }
         else
         {
-            embed.addField('Delete Orginal Message', "No"); 
+            embed.addFields({name: 'Delete Orginal Message', value: "No"}); 
         }
 
         if(guildBlacklist.GetBlacklistArray().length == 0)
         {
-            embed.addField('Phrases:', `There are no banned phrases at the moment.`);
+            embed.addFields({name: 'Phrases:', value: `There are no banned phrases at the moment.`});
         }
         else
         {
-            embed.addField('Phrases:', guildBlacklist.GetBlacklistArray().join('\n'));
+            embed.addFields({name: 'Phrases:', value: guildBlacklist.GetBlacklistArray().join('\n')});
         }
         return interaction.reply({embeds: [embed]})
 	},

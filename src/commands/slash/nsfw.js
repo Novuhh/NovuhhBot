@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed, MessageButton, MessageActionRow } = require('discord.js');
+const { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
 const Booru = require('booru');
 const NoDependents = require("../../util/helper_no_dependents.js");
 
@@ -11,17 +11,18 @@ module.exports = {
             .setName('site')
             .setDescription('Which booru site do you want to look up on?')
             .setRequired(true)
-            .addChoices([
-                ['rule34','rule34'],
-                ['gel','gelbooru'],
-                ['yandere','yandere'],
-                ['real','realbooru']
-            ])
+            .addChoices(
+                {name: 'rule34', value: 'rule34'},
+                {name: 'gel', value: 'gelbooru'},
+                {name: 'yandere', value: 'yandere'},
+                {name: 'real', value: 'realbooru'}
+            )
         )
         .addStringOption(option => option
             .setName('tags')
             .setDescription('Can be multiple tags separated by a space. Multi word tags should connect with an "_"')
-        ),
+        )
+        .setDMPermission(true),
 	async execute(interaction) {
         const subcommand = interaction.options.getString('site');
         let tagsString = interaction.options.getString('tags');
@@ -47,14 +48,14 @@ module.exports = {
             tagsString = '';
         }
 
-        const showAnotherHash = NoDependents.GenerateRandomHash(32);
-        const showAnotherButton = new MessageButton()
+        const showAnotherHash = NoDependents.GenerateUserHash(interaction.user.id);
+        const showAnotherButton = new ButtonBuilder()
             .setCustomId(showAnotherHash)
             .setLabel('Show Another')
-            .setStyle('SUCCESS')
+            .setStyle(ButtonStyle.Primary)
             .setDisabled(false);
 
-        const row = new MessageActionRow()
+        const row = new ActionRowBuilder()
             .addComponents(
                 showAnotherButton
             );
@@ -101,8 +102,8 @@ module.exports = {
             }).catch(console.error);
         });
         const nextpost = posts.pop()
-        const embed = new MessageEmbed()
-            .setColor('PURPLE')
+        const embed = new EmbedBuilder()
+            .setColor('Purple')
             .setTitle(`NSFW image from ${subcommand}`)
             .setFooter({ text: `Site: ${subcommand}, Tags: ${tagsString}` })
             .setImage(nextpost.fileUrl)

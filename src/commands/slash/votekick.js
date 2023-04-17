@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed, MessageButton, MessageActionRow } = require('discord.js');
+const { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, PermissionFlagsBits } = require('discord.js');
 const NoDependents = require("../../util/helper_no_dependents.js");
 const Data = require("../../util/user_data.js")
 
@@ -13,7 +13,8 @@ module.exports = {
             .setRequired(true))
         .addStringOption(option => option
             .setName('reason')
-            .setDescription('Why are you wanting to kick this person')),
+            .setDescription('Why are you wanting to kick this person'))
+        .setDefaultMemberPermissions(PermissionFlagsBits.Speak),
 	async execute(interaction) {
 
         const votekickee = interaction.options.getUser('user');
@@ -37,8 +38,8 @@ module.exports = {
         if(reason == null) { reason = 'No reason given'; }
         let voteToKick = [interaction.user.id];
         let voteToStay = [votekickee.id];
-        const embed = new MessageEmbed()
-            .setColor('PURPLE')
+        const embed = new EmbedBuilder()
+            .setColor('Purple')
             .setTitle(`Vote Kick Called`)
             .setDescription(`${interaction.user} called for a vote kick on ${votekickee} with reason listed: \`${reason}\``)
             .setFooter({ text: `${voteToKick.length} Vote to kick - ${voteToStay.length} vote to not kick` })
@@ -70,19 +71,19 @@ module.exports = {
             }).catch(console.error);
         }
 
-        const kickHash = NoDependents.GenerateRandomHash(32);
-        const noKickHash = NoDependents.GenerateRandomHash(32);
-        const kickButton = new MessageButton()
+        const kickHash = NoDependents.GenerateUserHash(interaction.user.id);
+        const noKickHash = NoDependents.GenerateUserHash(interaction.user.id);
+        const kickButton = new ButtonBuilder()
             .setCustomId(kickHash)
             .setLabel('Accept')
-            .setStyle('SUCCESS')
+            .setStyle(ButtonStyle.Primary)
             .setDisabled(false);
-        const noKickButton = new MessageButton()
+        const noKickButton = new ButtonBuilder()
             .setCustomId(noKickHash)
             .setLabel('Decline')
-            .setStyle('DANGER')
+            .setStyle(ButtonStyle.Primary)
             .setDisabled(false);
-        const row = new MessageActionRow()
+        const row = new ActionRowBuilder()
             .addComponents(
                 kickButton,
                 noKickButton

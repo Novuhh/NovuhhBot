@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageButton, MessageActionRow } = require('discord.js');
+const { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const Data = require("../../util/user_data.js")
 const NoDependents = require('../../util/helper_no_dependents.js');
 
@@ -11,44 +11,47 @@ module.exports = {
             option.setName('amount')
             .setDescription('The amount of coin to you want to gamble')
             .setMinValue(1)
-            .setRequired(true)),
+            .setRequired(true))
+        .setDMPermission(true),
 	async execute(interaction) {
         const amount = interaction.options.getInteger('amount');
+        const embed = new EmbedBuilder().setColor('Random').setTitle('Heads or Tails')
 
         if(amount > Data.Coin.GetCoinOfUser(interaction.user.id))
-            return interaction.reply(`You can't gamble more coin than you have. You only have \`${Data.Coin.GetCoinOfUser(interaction.user.id)}\` coin.`);
+        {
+            embed.setDescription(`You can't gamble more coin than you have. You only have \`${Data.Coin.GetCoinOfUser(interaction.user.id)}\` coin.`);
+            return interaction.reply({embeds: [embed]});
+        }
 
-        const headHash = NoDependents.GenerateRandomHash(32);
-        const tailHash = NoDependents.GenerateRandomHash(32);
-        const headButton = new MessageButton()
-            .setCustomId(headHash)
-            .setLabel('Heads')
-            .setStyle('PRIMARY')
-            .setDisabled(false);
-        const tailButton = new MessageButton()
-            .setCustomId(tailHash)
-            .setLabel('Tails')
-            .setStyle('PRIMARY')
-            .setDisabled(false);
-
-        const gameRow = new MessageActionRow()
+        const headHash = NoDependents.GenerateUserHash(interaction.user.id, 8);
+        const tailHash = NoDependents.GenerateUserHash(interaction.user.id, 8);
+        const gameRow = new ActionRowBuilder()
             .addComponents(
-                headButton,
-                tailButton
+                new ButtonBuilder()
+                .setCustomId(headHash)
+                .setLabel('Heads')
+                .setStyle(ButtonStyle.Primary)
+                .setDisabled(false),
+                new ButtonBuilder()
+                .setCustomId(tailHash)
+                .setLabel('Tails')
+                .setStyle(ButtonStyle.Primary)
+                .setDisabled(false)
             );
 
-        const playAgainHash = NoDependents.GenerateRandomHash(32);
-        const playAgainButton = new MessageButton()
-            .setCustomId(playAgainHash)
-            .setLabel('Play Again')
-            .setStyle('SUCCESS')
-            .setDisabled(false);
-        const playAgainRow = new MessageActionRow()
+        const playAgainHash = NoDependents.GenerateUserHash(interaction.user.id, 8);
+        const playAgainRow = new ActionRowBuilder()
             .addComponents(
-                playAgainButton
+                new ButtonBuilder()
+                .setCustomId(playAgainHash)
+                .setLabel('Play Again')
+                .setStyle(ButtonStyle.Success)
+                .setDisabled(false)
             );
         
-        await interaction.reply({ content: 'I am going to flip a coin, call the side you want to see facing up.', components: [gameRow] });
+        embed.setDescription('I am going to flip a coin, call the side you want to see facing up.');
+        let reply = await interaction.reply({ embeds: [embed], components: [gameRow] });
+        console.log(reply);
 
         // Disable all components of a interaction after 10 minutes
         setTimeout(NoDependents.DisableAllInteractionComponents, 10 * 60 * 1000, interaction);
@@ -59,13 +62,14 @@ module.exports = {
         
         const collector = interaction.channel.createMessageComponentCollector({
             filter,
-            time: 30 * 1000
+            time: 30 * 1000,
+            ComponentType: ComponentType.Button
         })
         setTimeout(function(){ collector.stop() }, 10 * 60 * 1000);
 
         let coinWon = 0;
 
-        collector.on('end', (collection) => {
+        collector.on('end', () => {
             let output =  `I guess you\'re done coinflipping for now.\n`;
             if(coinWon > 0)
             {
@@ -79,14 +83,15 @@ module.exports = {
             {
                 output += `You lost: \`${Math.abs(coinWon)}\` coin in this coinflip gambling session.`;
             }
-            interaction.editReply({ content:output }).catch(console.error);
-            NoDependents.DisableAllInteractionComponents(interaction);
+            embed.setDescription(output);
+            interaction.editReply({ embeds: [embed] }).catch(console.error);
+            //NoDependents.DisableAllInteractionComponents(interaction);
         })
 
         collector.on('collect', buttonInt => {
             if(buttonInt.user.id !== interaction.user.id)
             {   
-                return buttonInt.reply({ content: `These buttons aren't for you.`, ephemeral: true })
+                return buttonInt.reply({ content: `These buttons aren't for you.`, ephemeral: true });
             }
             
             buttonInt.deferUpdate();
