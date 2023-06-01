@@ -10,7 +10,9 @@ module.exports = {
 	description: "get a response from the bot",
 	permission: 1,
 	devGuildOnly: false,
-	async execute(message) {
+	parameters: "[parameter] [optional parameter]",
+	async execute(message) 
+	{
 		message.reply('pong');
 	},
 };

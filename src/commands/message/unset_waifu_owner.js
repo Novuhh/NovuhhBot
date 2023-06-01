@@ -5,6 +5,7 @@ module.exports = {
 	description: `Free a waifu of their owner`,
 	permission: 3,
 	devGuildOnly: false,
+    parameters: "[@user]",
 	async execute(message) {
         const waifu = message.mentions.users.first();
         const guildWaifu = new Data.Waifu(message.guildId);

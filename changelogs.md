@@ -24,3 +24,8 @@ I will try and document the changes I make from the previous version
     - Commands that aren't required to be used in a guild are now able to be used in direct messages. Ex: `/blackjack`
 - New command: RPS, play rps with a friend, or let anyone play against you
 - Help command is now modular. Any new slash command added will automatically show in the help command. Message command support will be coming soon tm.
+
+# 2.1.4
+
+- Full modular help menu
+- Minor fixes

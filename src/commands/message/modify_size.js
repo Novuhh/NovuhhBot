@@ -5,6 +5,7 @@ module.exports = {
 	description: `Modify the "size" of someone`,
 	permission: 3,
 	devGuildOnly: false,
+    parameters: `[@user] [(optional) new size]`,
 	async execute(message) {
         const user = message.mentions.users.first();
         const messageContent = message.content.split(' ');

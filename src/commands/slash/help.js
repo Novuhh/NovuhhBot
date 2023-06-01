@@ -88,17 +88,16 @@ module.exports = {
                         continue;
                 }
 
-                if(command.devGuildOnly == true && !NoDependents.IsDevGuild(interaction.guild.id)) { continue; }
-                messageFields.push({name: `${prefix}${command.name}`, value: command.description})
+                if(command.devGuildOnly == true && !NoDependents.IsDevGuild(interaction.guildId)) { continue; }
+                if(command.parameters == null)
+                {
+                    messageFields.push({name: `${prefix}${command.name}`, value: command.description});
+                }
+                else
+                {
+                    messageFields.push({name: `${prefix}${command.name} ${command.parameters}`, value: command.description});
+                }
             }
-        }
-
-        //console.log(messageFields)
-
-        function updateEmbed(pageNum)
-        {
-            embed.setFooter({text: `Page ${pageNum} of ${Math.ceil(fields.length / commandsPerPage)}`})
-                .setFields(fields.slice((pageNum-1) * commandsPerPage, Math.min(pageNum*commandsPerPage, fields.length)))
         }
 
         // Only one page
@@ -112,17 +111,38 @@ module.exports = {
         let pageText = []
         for(let i = 1; i <= Math.ceil(fields.length / commandsPerPage); i++)
         {
-            pageText.push({label: `Page: ${i}`, value: `slash ${i}`});
+            pageText.push({label: `Slash Page: ${i}`, value: `slash ${i}`});
         }
+        for(let i = 1; i <= Math.ceil(messageFields.length / commandsPerPage); i++)
+        {
+            pageText.push({label: `Message Page: ${i}`, value: `message ${i}`});
+        }
+
         const menuHash = NoDependents.GenerateUserHash(interaction.user.id);
         const menu = new StringSelectMenuBuilder()
             .setPlaceholder("Change Page Number Here")
             .setCustomId(menuHash)
             .setOptions(pageText)
             .setMinValues(0)
-            .setMaxValues(1)
+            .setMaxValues(1);
 
-        
+        const pageOf = Math.ceil(fields.length / commandsPerPage) + Math.ceil(messageFields.length / commandsPerPage);
+        function updateEmbed(page)
+        {
+            if(page.slice(0,5) == "slash")
+            {
+                let pageNum = parseInt(page.slice(6));
+                embed.setFooter({text: `Page ${pageNum} of ${pageOf}`});
+                embed.setFields(fields.slice((pageNum-1) * commandsPerPage, Math.min(pageNum*commandsPerPage, fields.length)));
+            }
+            if(page.slice(0,7) == "message")
+            {
+                let pageNum = parseInt(page.slice(8));
+                embed.setFooter({text: `Page ${pageNum + Math.ceil(fields.length / commandsPerPage)} of ${pageOf}`});
+                embed.setFields(messageFields.slice((pageNum-1) * commandsPerPage, Math.min(pageNum*commandsPerPage, messageFields.length)));
+            }
+        }
+            
         const filter = inter => inter.customId == menuHash;
         const collector = interaction.channel.createMessageComponentCollector({ filter, componentType: ComponentType.StringSelect, time: 10 * 60 * 1000 });
 
@@ -131,11 +151,7 @@ module.exports = {
                 return i.reply({ content: `This select menu isn't for you!`, ephemeral: true });
             }
             i.deferUpdate();
-            if(i.values[0].slice(0,5) == "slash")
-            {
-                updateEmbed(i.values[0].slice(5))
-            }
-            
+            updateEmbed(i.values[0]);
             interaction.editReply({embeds: [embed]}).catch(console.error);
         });
 
@@ -146,7 +162,7 @@ module.exports = {
             }).catch(console.error);
         });
         
-        updateEmbed(1)
+        updateEmbed("slash 1")
         return interaction.reply({
             embeds: [embed],
             components: [new ActionRowBuilder().addComponents(menu)]

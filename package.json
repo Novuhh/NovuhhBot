@@ -1,6 +1,6 @@
 {
   "name": "novuhh",
-  "version": "2.1.2",
+  "version": "2.1.4",
   "description": "A discord bot that does stuff",
   "main": "src/index.js",
   "dependencies": {

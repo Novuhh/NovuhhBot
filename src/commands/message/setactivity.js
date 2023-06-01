@@ -8,6 +8,7 @@ module.exports = {
 	description: "Set the activity presense of the bot",
 	permission: 4,
 	devGuildOnly: false,
+	parameters: "[text, type, or url] [set to]",
 	async execute(message) {
         const splitMessage =  message.content.split(' ');
 		const prefix = new Data.GuildData(message.guildId).GetPrefix();

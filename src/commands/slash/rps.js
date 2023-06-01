@@ -209,7 +209,7 @@ module.exports = {
         // Get a user to play against
         if(guest == null)
         {
-            embed.setDescription(`${author} wants to play RPS. Click the button below to play agains them.`);
+            embed.setDescription(`${author} wants to play RPS. Click the button below to play against them.`);
             const joinGameHash = NoDependents.GenerateUserHash(interaction.user.id,8);
             const joinGameButon = new ButtonBuilder()
                 .setCustomId(joinGameHash)

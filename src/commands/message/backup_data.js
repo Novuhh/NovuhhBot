@@ -5,6 +5,7 @@ module.exports = {
 	description: "Backup the user data in its current state",
 	permission: 4,
 	devGuildOnly: false,
+    parameters: `[(optional) backup file name]`,
 	async execute(message) {
         let messageContent = message.content.split(' ');
         if(messageContent[1] == null)

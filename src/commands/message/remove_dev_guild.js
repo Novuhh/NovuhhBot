@@ -6,6 +6,7 @@ module.exports = {
 	description: "Add a guild to the dev guild list",
 	permission: 4,
 	devGuildOnly: true,
+    parameters: "[(optional) guildId]",
 	async execute(message) {
         const messageContent = message.content.split(' ');
         let guild = message.guild.id;

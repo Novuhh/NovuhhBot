@@ -38,7 +38,7 @@ module.exports = {
             .addFields([
                 {name: "What do you do?", value: "I am an economy and social credit bot with some other features. Work a job, gamble your paycheck, then curse out the dear leader and lose 1000 social credit."},
                 {name: "Why do you exist?", value: "Why do any of us exist? I don\'t know why exactly but one day my creator <@262791799444078594> made me so here I am."},
-                {name: "'Time Since Last Crash", value: uptime}
+                {name: "Time Since Last Crash", value: uptime}
             ])
             .setFooter({text: `Currently running version: ${version}`});
 		interaction.reply({embeds: [embed]})

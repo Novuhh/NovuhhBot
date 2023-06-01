@@ -6,6 +6,7 @@ module.exports = {
 	description: `Set a waifu's value for them`,
 	permission: 3,
 	devGuildOnly: false,
+    parameters: "[@waifu] [new value]",
 	async execute(message) {
         const waifu = message.mentions.users.first();
         const amount = parseInt(message.content.split(' ')[2]);

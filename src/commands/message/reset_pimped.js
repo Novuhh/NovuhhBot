@@ -5,6 +5,7 @@ module.exports = {
     description: "Reset the pimped status of a user",
     permission: 4,
     devGuildOnly: false,
+    parameters: "[(optional) @user]",
     async execute(message) {
         const user = message.mentions.users.first();
         if(user)

@@ -3,6 +3,7 @@ module.exports = {
 	description: "Repeat the message without the say",
 	permission: 4,
 	devGuildOnly: false,
+    parameters: "[I say this part]",
 	async execute(message) {
         const messageContent = message.content.split(' ');
         message.delete();

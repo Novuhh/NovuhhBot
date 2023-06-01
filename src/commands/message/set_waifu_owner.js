@@ -6,6 +6,7 @@ module.exports = {
 	description: `Set a waifu to be owned by another person`,
 	permission: 3,
 	devGuildOnly: false,
+    parameters: "[@waifu], [@owner]",
 	async execute(message) {
         const waifu = message.mentions.users.first();
         const owner = message.mentions.users.last();

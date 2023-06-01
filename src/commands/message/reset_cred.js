@@ -6,6 +6,7 @@ module.exports = {
 	description: `Reset the social credit of a user to ${defaultSocialCred}`,
 	permission: 3,
 	devGuildOnly: true,
+    parameters: "[@user]",
 	async execute(message) {
         const user = message.mentions.users.first();
         if(!user) 

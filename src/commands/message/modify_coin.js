@@ -6,6 +6,7 @@ module.exports = {
 	description: "Modify the coin of a user",
 	permission: 4,
 	devGuildOnly: false,
+    parameters: `[(optional) backup file name]`,
 	async execute(message) {
         const messageContent = message.content.split(' ');
         const user = message.mentions.users.first();
