@@ -55,14 +55,6 @@ process.on('exit', () => {
 	console.log(`${Date()} : ${client.user.username} is shutting down`);
 });
 
-client.on("channelUpdate", async (oldChannel, newChannel) => {
-    //const generalChannelID = "822740976496934933";    //    Bot testing
-    const generalChannelID = "280829648601088011";    //    Supernova
-    const nameToKeep = "general"
-    if(!(oldChannel.id == generalChannelID && newChannel.id == generalChannelID)){ return; }
-    if(newChannel.name != nameToKeep) { newChannel.setName(nameToKeep); }
-});
-
 client.on('interactionCreate', async interaction => {
 	if(interaction.isCommand()) 
 	{
