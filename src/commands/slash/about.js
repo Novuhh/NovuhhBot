@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
+
 const { version } = require('../../../package.json');
 
 module.exports = {
@@ -30,6 +31,12 @@ module.exports = {
         // Seconds
         uptime += `\`${Math.floor(time / 1000)}\` Seconds`;
         time -= Math.floor(time / 1000) * 1000;
+
+        const sauce = new ButtonBuilder()
+            .setLabel('Source')
+            .setURL('https://github.com/Novuhh/NovuhhBot')
+            .setStyle(ButtonStyle.Link);
+
         const embed = new EmbedBuilder()
             .setColor('Blue')
             .setTitle("Hi I'm Novuhh")
@@ -41,6 +48,6 @@ module.exports = {
                 {name: "Time Since Last Crash", value: uptime}
             ])
             .setFooter({text: `Currently running version: ${version}`});
-		interaction.reply({embeds: [embed]})
+		interaction.reply({embeds: [embed], components: [new ActionRowBuilder().addComponents( sauce )]})
 	},
 };
