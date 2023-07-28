@@ -147,3 +147,44 @@ module.exports.splitMessage = function(text, { maxLength = 2_000, char = '\n', p
     }
     return messages.concat(msg).filter(m => m);
 }
+
+module.exports.CheckLineInMatrix = function (matrix = [[]], toCheckFor = 0, lineLength = 4)
+{
+    let matrixCopy = JSON.parse(JSON.stringify(matrix));
+
+    function CheckRows(matrix)
+    {
+        for (let i = 0; i < matrix.length; i++) 
+        {
+            for(let j = 0; j < matrix[i].length - lineLength + 1; j++)
+            {
+                if(matrix[i].slice(j, j + lineLength).every((x) => x == toCheckFor)) { return true; }
+            }
+        }
+    }
+    // Check rows for a line
+    if(CheckRows(matrixCopy)) { return true; }
+    // Switches Cols to rows, then checks for a line
+    if(CheckRows(matrixCopy[0].map((_, colIndex) => matrixCopy.map(row => row[colIndex])))) { return true; }
+
+    function CheckDiags(matrix)
+    {
+        for (let i = 0; i < matrix.length - lineLength + 1; i++) 
+        {
+            for(let j = 0; j < matrix[i].length - lineLength + 1; j++)
+            {
+                let tempList = []
+                for(let k = 0; k < lineLength; k++)
+                {
+                    tempList.push(matrix[i + k][j + k]);
+                }
+                if(tempList.every((x) => x == toCheckFor)) { return true; }
+            }
+        }
+    }
+    // Check diags
+    if(CheckDiags(matrixCopy)) { return true; }
+    matrixCopy.every(x => x.reverse());
+    if(CheckDiags(matrixCopy)) { return true; }
+    return false;
+}

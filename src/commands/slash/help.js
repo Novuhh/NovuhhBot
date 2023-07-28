@@ -14,49 +14,43 @@ module.exports = {
             .setTitle('Help Menu')
             .setColor('Random')
         
-        //console.log(interaction.client.messageCommands)
-
         // Get all commands aviable to the user
         const allCommands = await interaction.client.application.commands.fetch()
         const DMChannel = interaction.guild === null;
 
         // Slash commands
         const memberPerms = interaction.member.permissions.bitfield;
-        let fields = [];
+        let slashFields = [];
         for(command of allCommands.values())
         {
             // If dm but not allowed to dm
             if(DMChannel && command.permissions.dmPermission == false) { continue; }
 
             // If does not have permisions to send command
-            let commandPerms = null
-            if(command.permissions.manager.defaultMemberPermissions !== null)
-            {
-                commandPerms = command.permissions.manager.defaultMemberPermissions.bitfield;
-            }
-            else { commandPerms = 0n }
+            let commandPerms = (command.permissions.manager.defaultMemberPermissions !== null) ? command.permissions.manager.defaultMemberPermissions.bitfield : 0n;
             if((memberPerms & commandPerms) != commandPerms) { continue; }
 
             // All commands aviable to user
+            // Commands with no subcommands or groups
             if(command.options.length == 0)
             {
-                fields.push({name: `</${command.name}:${command.id}>`, value: command.description});
+                slashFields.push({name: `</${command.name}:${command.id}>`, value: command.description});
                 continue;
             }
             
+            // Commands with subcommands or groups
             for(option of command.options)
             {
                 if(option.type == 1)
                 {
-                    fields.push({name: `</${command.name} ${option.name}:${command.id}>`, value: option.description});
+                    slashFields.push({name: `</${command.name} ${option.name}:${command.id}>`, value: option.description});
                 }
                 else
                 {
-                    fields.push({name: `</${command.name}:${command.id}>`, value: command.description});
+                    slashFields.push({name: `</${command.name}:${command.id}>`, value: command.description});
                     break;
                 }
             }
-            
         }
 
         // Message Commands
@@ -101,15 +95,15 @@ module.exports = {
         }
 
         // Only one page
-        if(fields.length <= commandsPerPage)
+        if(slashFields.length + messageFields.length <= commandsPerPage)
         {
-            embed.setFields(fields)
+            embed.setFields(slashFields.concat(messageFields));
             return interaction.reply({embeds: [embed]});
         }
         
         // Many pages
         let pageText = []
-        for(let i = 1; i <= Math.ceil(fields.length / commandsPerPage); i++)
+        for(let i = 1; i <= Math.ceil(slashFields.length / commandsPerPage); i++)
         {
             pageText.push({label: `Slash Page: ${i}`, value: `slash ${i}`});
         }
@@ -126,19 +120,19 @@ module.exports = {
             .setMinValues(0)
             .setMaxValues(1);
 
-        const pageOf = Math.ceil(fields.length / commandsPerPage) + Math.ceil(messageFields.length / commandsPerPage);
+        const pageOf = Math.ceil(slashFields.length / commandsPerPage) + Math.ceil(messageFields.length / commandsPerPage);
         function updateEmbed(page)
         {
             if(page.slice(0,5) == "slash")
             {
                 let pageNum = parseInt(page.slice(6));
                 embed.setFooter({text: `Page ${pageNum} of ${pageOf}`});
-                embed.setFields(fields.slice((pageNum-1) * commandsPerPage, Math.min(pageNum*commandsPerPage, fields.length)));
+                embed.setFields(slashFields.slice((pageNum-1) * commandsPerPage, Math.min(pageNum*commandsPerPage, slashFields.length)));
             }
             if(page.slice(0,7) == "message")
             {
                 let pageNum = parseInt(page.slice(8));
-                embed.setFooter({text: `Page ${pageNum + Math.ceil(fields.length / commandsPerPage)} of ${pageOf}`});
+                embed.setFooter({text: `Page ${pageNum + Math.ceil(slashFields.length / commandsPerPage)} of ${pageOf}`});
                 embed.setFields(messageFields.slice((pageNum-1) * commandsPerPage, Math.min(pageNum*commandsPerPage, messageFields.length)));
             }
         }
@@ -162,7 +156,7 @@ module.exports = {
             }).catch(console.error);
         });
         
-        updateEmbed("slash 1")
+        updateEmbed("slash 1");
         return interaction.reply({
             embeds: [embed],
             components: [new ActionRowBuilder().addComponents(menu)]

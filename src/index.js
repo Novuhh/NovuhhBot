@@ -72,7 +72,11 @@ client.on('interactionCreate', async interaction => {
 });
 
 client.on("messageCreate", async message => {
-    messageHandlers.forEach(handler => handler.execute(message));
+    try {
+        messageHandlers.forEach(handler => handler.execute(message));
+    } catch (error) {
+        console.log(error);
+    }
 
     const prefix = new Data.GuildData(message.guild.id).GetPrefix();
     if(!message.content.startsWith(prefix)){ return; }    // No prefix detected, do not care
@@ -119,7 +123,11 @@ client.on("messageCreate", async message => {
 });
 
 client.on("voiceStateUpdate", (oldVoiceState, newVoiceState) => {
-    voiceHandlers.forEach(handler => handler.execute(oldVoiceState, newVoiceState));    
+    try {
+        voiceHandlers.forEach(handler => handler.execute(oldVoiceState, newVoiceState));
+    } catch (error) {
+        console.log(error);
+    }
 });
 
 client.on('guildCreate', guild => {

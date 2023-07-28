@@ -117,7 +117,7 @@ module.exports.InteractionGetConfimationFromUser = function(
         collector.on('collect', buttonInt => {
             if(buttonInt.user.id != confirmNeededID)
             {
-                buttonInt.reply({ content: `These buttons aren't for you.`, ephemeral: true });
+                return buttonInt.reply({ content: `These buttons aren't for you.`, ephemeral: true });
             }
             buttonInt.deferUpdate();
             if(buttonInt.customId == acceptHash)

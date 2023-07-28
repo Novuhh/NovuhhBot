@@ -22,10 +22,15 @@ I will try and document the changes I make from the previous version
 - Updated from discord js v13.6.0 to v14.8.0
 - Commands are now global instead of guild
     - Commands that aren't required to be used in a guild are now able to be used in direct messages. Ex: `/blackjack`
-- New command: RPS, play rps with a friend, or let anyone play against you
+- New command: RPS, play rps with a friend, or let anyone play against you.
 - Help command is now modular. Any new slash command added will automatically show in the help command. Message command support will be coming soon tm.
 
 # 2.1.4
 
 - Full modular help menu
 - Minor fixes
+
+# 2.1.5
+- New command: Connect 4, play connect 4 with a friend, or let anyone play against you.
+- New command: Timestamp, generate a discord timestamp that displays the correct time for everyone.
+- Bug fixes

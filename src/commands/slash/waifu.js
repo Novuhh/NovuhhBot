@@ -140,11 +140,11 @@ module.exports = {
 
                 if(owned.length != 0)
                 {
-                    embed.addField('Ownership', `${user} owns all of the following waifus: ${waifuList}`);//<@${owned.join('>, <@')}>`);
+                    embed.addFields({name: 'Ownership', value: `${user} owns all of the following waifus: ${waifuList}`});//<@${owned.join('>, <@')}>`);
                 }
                 else
                 {
-                    embed.addField('Ownership', `${user} does not own any waifus.`);
+                    embed.addFields({name: 'Ownership', value: `${user} does not own any waifus.`});
                 }
 
                 // Who owns the user
@@ -152,17 +152,17 @@ module.exports = {
                 const waifuValue = guildWaifu.GetWaifuValue(user.id);
                 if(waifuOwnerID != null)
                 {
-                    embed.addField('Owner', `${user} is owned by <@${waifuOwnerID}> with a value of \`${waifuValue}\`.`);
+                    embed.addFields({name: 'Owner', value: `${user} is owned by <@${waifuOwnerID}> with a value of \`${waifuValue}\`.`});
                 }
                 else
                 {
                     if(waifuValue != null)
                     {
-                        embed.addField('Owner' ,`${user} is not owned by anyone but can be claimed with a value of \`${waifuValue}\`.`);
+                        embed.addFields({name: 'Owner' , value: `${user} is not owned by anyone but can be claimed with a value of \`${waifuValue}\`.`});
                     }
                     else
                     {
-                        embed.addField('Owner' ,`${user} is not owned by anyone and is not able to be claimed.`);
+                        embed.addFields({name: 'Owner' ,value: `${user} is not owned by anyone and is not able to be claimed.`});
                     }
                 }
                 return interaction.reply({embeds: [embed]});
