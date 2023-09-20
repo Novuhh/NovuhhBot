@@ -884,40 +884,63 @@ module.exports.Activity = Activity;
 
 class VoteKick
 {
-    static AddVoteKicked(userID, channelID)
+    static AddVoteKicked(userID, channelID, timeoutExpires)
     {
         if(storedData.voteKicked[userID] == null)
         {
-            storedData.voteKicked[userID] = [channelID];
+            storedData.voteKicked[userID] = {};
+            storedData.voteKicked[userID][channelID] = timeoutExpires
             return true;
         }
-        else if(!storedData.voteKicked[userID].includes(channelID))
+        if(!Object.keys(storedData.voteKicked[userID]).includes(channelID))
         {
-            storedData.voteKicked[userID].push(channelID);
+            storedData.voteKicked[userID][channelID] = timeoutExpires;
             return true;
         }
-        else { return false; }
+        else
+        { 
+            return false; 
+        }
     }
     static RemoveVoteKicked(userID, channelID)
     {
-        if(storedData.voteKicked.userID == null){ return false; }
-        const index = storedData.voteKicked[userID].indexOf(channelID);
-        if(index != -1)
+        if(storedData.voteKicked[userID] == null){ return false; }
+        if(storedData.voteKicked[userID][channelID] == null)
         {
-            storedData.voteKicked.splice(index, 1);
-            if(storedData.voteKicked[userID].length == 0)
-            {
-                delete storedData.voteKicked[userID];
-            }
-            return true;
+            return false;
         }
-        return false;
+        delete storedData.voteKicked[userID][channelID];
+        if(Object.keys(storedData.voteKicked[userID]).length == 0)
+        {
+            delete storedData.voteKicked[userID];
+        }
+        return true;
     }
 
     static KickedFromChannel(userID, channelID)
     {
         if(storedData.voteKicked[userID] == null) { return false; }
-        return storedData.voteKicked[userID].includes(channelID);
+        const expiresAt = storedData.voteKicked[userID][channelID];
+        if(expiresAt < Date.now())
+        {
+            this.RemoveVoteKicked(userID, channelID);
+            return false;
+        }
+        return true;
+    }
+
+    static GetVoteKickTimeExpires(userID, channelID)
+    {
+        if(storedData.voteKicked[userID] == null){ return false; }
+        return storedData.voteKicked[userID][channelID]
+    }
+
+    static AddTimeToTimeout(userID, channelID, timeinMS)
+    {
+        if(storedData.voteKicked[userID] == null) { return false; }
+        if(storedData.voteKicked[userID][channelID] == null) { return false; }
+        storedData.voteKicked[userID][channelID] += timeinMS;
+        return true
     }
 
     static ClearVoteKickData()

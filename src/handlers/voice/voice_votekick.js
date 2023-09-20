@@ -7,7 +7,8 @@ module.exports =
     {
         if(newVoiceState.channel != null && Data.VoteKick.KickedFromChannel(newVoiceState.id, newVoiceState.channelId))
         {
-            newVoiceState.member.user.send(`You are currently kicked from ${newVoiceState.channel.name}. The kick last 15 minutes. Just wait it out if you really want to join back.`)
+            Data.VoteKick.AddTimeToTimeout(newVoiceState.id, newVoiceState.channelId, 60 * 1000);
+            newVoiceState.member.user.send(`You are currently kicked from ${newVoiceState.channel.name}. Adding 1 minute for trying. The kick ends <t:${Math.ceil(Data.VoteKick.GetVoteKickTimeExpires(newVoiceState.id, newVoiceState.channelId) / 1000)}:R>`)
             newVoiceState.disconnect();
         }
     }

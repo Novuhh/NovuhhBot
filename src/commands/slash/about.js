@@ -33,7 +33,7 @@ module.exports = {
         time -= Math.floor(time / 1000) * 1000;
 
         const sauce = new ButtonBuilder()
-            .setLabel('Source')
+            .setLabel('Source Code')
             .setURL('https://github.com/Novuhh/NovuhhBot')
             .setStyle(ButtonStyle.Link);
 

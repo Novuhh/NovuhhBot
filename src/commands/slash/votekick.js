@@ -1,7 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, PermissionFlagsBits } = require('discord.js');
 const NoDependents = require("../../util/helper_no_dependents.js");
-const Data = require("../../util/user_data.js")
+const Data = require("../../util/user_data.js");
+const { votekickTimeoutMinutes } = require('../../data/constants.json');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -36,13 +37,14 @@ module.exports = {
 
         let reason = interaction.options.getString('reason');
         if(reason == null) { reason = 'No reason given'; }
-        let voteToKick = [interaction.user.id];
-        let voteToStay = [votekickee.id];
+        let voteToKick = [];//[interaction.user.id];
+        let voteToStay = [];//[votekickee.id];
+        let voteToAbstain = [];
         const embed = new EmbedBuilder()
             .setColor('Purple')
             .setTitle(`Vote Kick Called`)
-            .setDescription(`${interaction.user} called for a vote kick on ${votekickee} with reason listed: \`${reason}\``)
-            .setFooter({ text: `${voteToKick.length} Vote to kick - ${voteToStay.length} vote to not kick` })
+            .setDescription(`${interaction.user} wants to kick ${votekickee} from \`${voiceChannel.name}\` with reason listed: \`${reason}\``)
+            .setFooter({ text: `${voteToKick.length} Vote to kick - ${voteToStay.length} vote to not kick - ${voteToAbstain.length} vote to abstain` });
 
         async function UpdateCount()
         {
@@ -63,41 +65,57 @@ module.exports = {
                     voteToStay.splice(i,1);
                 }
             }
+            for(let i = 0; i < voteToAbstain.length; i++)
+            {
+                if(!voiceChannelMemberIDs.includes(voteToAbstain[i]))
+                {
+                    voteToAbstain.splice(i,1);
+                }
+            }
 
-            embed.setFooter({ text: `${voteToKick.length} Vote to kick - ${voteToStay.length} vote to not kick` })
-            await interaction.editReply({ 
-            embeds: [embed],
-                components: [row] 
-            }).catch(console.error);
+            UpdateFooter();
+        }
+
+        function UpdateFooter()
+        {
+            embed.setFooter({ text: `${voteToKick.length} Vote to kick - ${voteToStay.length} vote to not kick - ${voteToAbstain.length} vote to abstain` })
         }
 
         const kickHash = NoDependents.GenerateUserHash(interaction.user.id);
         const noKickHash = NoDependents.GenerateUserHash(interaction.user.id);
+        const abstainHash = NoDependents.GenerateUserHash(interaction.user.id);
         const kickButton = new ButtonBuilder()
             .setCustomId(kickHash)
             .setLabel('Accept')
-            .setStyle(ButtonStyle.Primary)
+            .setStyle(ButtonStyle.Success)
             .setDisabled(false);
         const noKickButton = new ButtonBuilder()
             .setCustomId(noKickHash)
             .setLabel('Decline')
+            .setStyle(ButtonStyle.Danger)
+            .setDisabled(false);
+        const abstainButton = new ButtonBuilder()
+            .setCustomId(abstainHash)
+            .setLabel('Abstain')
             .setStyle(ButtonStyle.Primary)
             .setDisabled(false);
         const row = new ActionRowBuilder()
             .addComponents(
                 kickButton,
-                noKickButton
+                noKickButton,
+                abstainButton
             );
 
         const filter = (btnInt) => {
-            return btnInt.customId == kickHash || btnInt.customId == noKickHash;
+            return btnInt.customId == kickHash || btnInt.customId == noKickHash || btnInt.customId == abstainHash;
         }
         const collector = interaction.channel.createMessageComponentCollector({
             filter,
             time: 60 * 1000
         })
 
-        collector.on('collect', buttonInt => {
+        var voteEnded = false;
+        collector.on('collect', async buttonInt => {
             UpdateCount();
 
             //Handle people who are not in the voice chat
@@ -116,49 +134,75 @@ module.exports = {
             {
                 return buttonInt.reply({ content: `You have already voted to \`not kick\` ${votekickee}.`, ephemeral: true });
             }
+            if(voteToAbstain.includes(buttonInt.user.id))
+            {
+                return buttonInt.reply({ content: `You have already voted to \`abstain\` ${votekickee}.`, ephemeral: true });
+            }
 
             if(buttonInt.customId == kickHash)
             {
                 voteToKick.push(buttonInt.user.id)
                 buttonInt.deferUpdate();
             }
-            else
+            else if (buttonInt.customId == noKickHash)
             {
                 voteToStay.push(buttonInt.user.id)
                 buttonInt.deferUpdate();
             }
+            else
+            {
+                voteToAbstain.push(buttonInt.user.id)
+                buttonInt.deferUpdate();
+            }
 
-            if(voteToKick.length > Math.ceil(voiceChannel.members.size / 2.0))
+            if(voteToKick.length > Math.ceil((voiceChannel.members.size - voteToAbstain.length) / 2.0))
             {
                 embed.setTitle('Vote Kick Passed');
                 kickButton.setDisabled(true);
                 noKickButton.setDisabled(true);
+                abstainButton.setDisabled(true);
                 votekickeeVoiceState.disconnect();
-                Data.VoteKick.AddVoteKicked(votekickee.id, voiceChannel.id)
-                setTimeout(Data.VoteKick.RemoveVoteKicked, 10 * 60 * 1000, [votekickee.id, voiceChannel.id])
+                const timeoutExpires = Date.now() +(votekickTimeoutMinutes * 60 * 1000);
+                Data.VoteKick.AddVoteKicked(votekickee.id, voiceChannel.id, timeoutExpires);
+                voteEnded = true;
             }
 
-            if(voteToStay.length > Math.ceil(voiceChannel.members.size / 2.0))
+            if(voteToStay.length > Math.ceil((voiceChannel.members.size - voteToAbstain.length) / 2.0))
             {
                 embed.setTitle('Vote Kick Failed');
                 kickButton.setDisabled(true);
                 noKickButton.setDisabled(true);
+                abstainButton.setDisabled(true);
+                voteEnded = true;
             }
 
-            embed.setFooter({ text: `${voteToKick.length} Vote to kick - ${voteToStay.length} vote to not kick` })
+            UpdateFooter();
             interaction.editReply({ 
-            embeds: [embed],
+                embeds: [embed],
                 components: [row] 
             }).catch(console.error);
 
         });
 
         collector.on('end', async () => {
-            if(embed.title == 'Vote Kick Passed' || embed.title == 'Vote Kick Failed'){ return; }
-
-            embed.setTitle('Vote Kick Failed - Timeout');
             kickButton.setDisabled(true);
             noKickButton.setDisabled(true);
+            abstainButton.setDisabled(true);
+
+            if(voteEnded){ return; }
+
+            // All non voters count as abstain
+            if(voteToKick.length > voteToStay.length)
+            {
+                embed.setTitle('Vote Kick Passed');
+                votekickeeVoiceState.disconnect();
+                const timeoutExpires = Date.now() +(votekickTimeoutMinutes * 60 * 1000);
+                Data.VoteKick.AddVoteKicked(votekickee.id, voiceChannel.id, timeoutExpires);
+            }
+            else
+            {
+                embed.setTitle('Vote Kick Failed - Timeout');
+            }
 
             interaction.editReply({ 
                 embeds: [embed],

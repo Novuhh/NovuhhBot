@@ -51,7 +51,7 @@ module.exports = {
             jobMessage += `\n🙏Any : Begger - No job havin ass needs to beg for any coin you can get.`;
             embed.setTitle(`Time to get to Work`)
                 .setDescription(`Your job opputunities are dependent on your social credit. Minium social credit needed on the left, job on the right.`)
-                .addField({name: 'Job Opputunities', value: jobMessage});
+                .addFields([{name: 'Job Opputunities', value: jobMessage}]);
             return interaction.reply({embeds: [embed]});
         }
 

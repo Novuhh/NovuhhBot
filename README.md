@@ -40,5 +40,5 @@ Novuhh was started in January 2021 as covid project. Since then there have been 
 3. Run `npm run init` to initialize the bot. 
     - (Required) You will need your discord bot token.
     - (Optional) You can add dev users and guilds which will grant special privileges those users and servers.
-    - (Optional) You can also intialize the bot's activity presence now. Can also do this later via commands.
+    - (Optional) You can also intialize the bot's activity presence now. Can also do this later via commands (as a dev user). 
 4. Run `node .` or `npm run start` to start the bot.

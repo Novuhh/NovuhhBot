@@ -34,3 +34,8 @@ I will try and document the changes I make from the previous version
 - New command: Connect 4, play connect 4 with a friend, or let anyone play against you.
 - New command: Timestamp, generate a discord timestamp that displays the correct time for everyone.
 - Bug fixes
+
+# 2.1.6
+- Votekick reworked to ensure kick is removed
+- Joining back a voice channel kicked from extends the time kicked
+- Bug fixes
