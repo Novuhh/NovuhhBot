@@ -37,8 +37,8 @@ module.exports = {
 
         let reason = interaction.options.getString('reason');
         if(reason == null) { reason = 'No reason given'; }
-        let voteToKick = [];//[interaction.user.id];
-        let voteToStay = [];//[votekickee.id];
+        let voteToKick = [interaction.user.id];
+        let voteToStay = [votekickee.id];
         let voteToAbstain = [];
         const embed = new EmbedBuilder()
             .setColor('Purple')
@@ -122,7 +122,8 @@ module.exports = {
             const voiceChannelMemberIDs = Array.from(voiceChannel.members.keys());
             if(!voiceChannelMemberIDs.includes(buttonInt.user.id))
             {
-                return buttonInt.reply({ content: `You need to be in the voice channel to vote.`, ephemeral: true });
+                Data.VoteKick.AddVoteKicked(buttonInt.user.id, voiceChannel.id, Date.now() + (1 * 60 * 1000));
+                return buttonInt.reply({ content: `You need to be in the voice channel to vote. But don't think that you can join just to vote. You are kicked until the current vote is over.`, ephemeral: true });
             }
             
             // Handle people who have already voted
@@ -162,12 +163,12 @@ module.exports = {
                 noKickButton.setDisabled(true);
                 abstainButton.setDisabled(true);
                 votekickeeVoiceState.disconnect();
-                const timeoutExpires = Date.now() +(votekickTimeoutMinutes * 60 * 1000);
+                const timeoutExpires = Date.now() + (votekickTimeoutMinutes * 60 * 1000);
                 Data.VoteKick.AddVoteKicked(votekickee.id, voiceChannel.id, timeoutExpires);
                 voteEnded = true;
             }
 
-            if(voteToStay.length > Math.ceil((voiceChannel.members.size - voteToAbstain.length) / 2.0))
+            if(voteToStay.length >= Math.ceil((voiceChannel.members.size - voteToAbstain.length) / 2.0))
             {
                 embed.setTitle('Vote Kick Failed');
                 kickButton.setDisabled(true);

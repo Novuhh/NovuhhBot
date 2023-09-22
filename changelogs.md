@@ -39,3 +39,7 @@ I will try and document the changes I make from the previous version
 - Votekick reworked to ensure kick is removed
 - Joining back a voice channel kicked from extends the time kicked
 - Bug fixes
+
+# 2.1.7
+- Votekick slightly reworked
+- Can't vote on poll if not in voice channel punishment

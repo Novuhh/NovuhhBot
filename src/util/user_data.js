@@ -899,7 +899,7 @@ class VoteKick
         }
         else
         { 
-            return false; 
+            storedData.voteKicked[userID][channelID] = Math.max(timeoutExpires, storedData.voteKicked[userID][channelID]);
         }
     }
     static RemoveVoteKicked(userID, channelID)
